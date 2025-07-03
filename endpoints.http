@@ -1,0 +1,69 @@
+### 👱auth routes
+#login
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+    "email":"rushi@gmail.com",
+    "password":"1234"
+}
+###
+#register
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+    "name":"rushi",
+    "email":"rushi@gmail.com",
+    "password":"1234",
+    "phone":"1234567890",
+    "address":{
+        "street":"street",
+        "city":"city",
+        "state":"state",
+        "zip":"zip"
+    },
+    "role":"wholesaler"
+}
+
+
+
+### 🎁product routes
+#add new product
+POST http://localhost:8000/api/product/new
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE0NjE4ODl9.HyIce2ryQSglI0r0MVxl82j35ZZ3EvPq4p-a-7s3Ug0
+
+{
+    "name":"product",
+    "description":"description",
+   "mrp":150,
+   "price":120,
+   "wholesaler_id":1
+}
+
+####get product by id
+GET http://localhost:8000/api/product/getById/1
+###update product
+PUT http://localhost:8000/api/product/update/1
+Content-Type: application/json
+
+{
+    "name":"product",
+    "description":"description",
+   "mrp":150,
+   "price":120,
+   "alternative_names":["name1","name2"]
+}
+###delete product
+DELETE http://localhost:8000/api/product/delete/1
+
+
+
+
+### 👴wholesaler routes
+#get products
+GET http://localhost:8000/api/wholesaler/get-products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE0NjE4ODl9.HyIce2ryQSglI0r0MVxl82j35ZZ3EvPq4p-a-7s3Ug0
+
+###

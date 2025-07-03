@@ -7,14 +7,9 @@ const User = sequelize.define('User', {
     autoIncrement: true,
     primaryKey: true,
   },
-  username: {
+  name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
-  },
-  access_token: {
-    type: DataTypes.STRING(255),
-    allowNull: true,
   },
   email: {
     type: DataTypes.STRING(255),
@@ -34,10 +29,6 @@ const User = sequelize.define('User', {
       },
     },
   },
-  location: {
-    type: DataTypes.JSONB,
-    allowNull: true,
-  },
   address: {
     type: DataTypes.JSONB,
     allowNull: true,
@@ -47,25 +38,17 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('wholesaler', 'customer'),
+    type: DataTypes.ENUM('wholesaler','retailer','admin'),
     allowNull: false,
   },
-  referral_code: {
-    type: DataTypes.STRING(255),
-    allowNull: true,
-    unique: true,
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+  isdeactivated:{
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, {
   tableName: 'users',
-  timestamps: false, // Since you're manually handling timestamps
+  timestamps: true,
 });
 
 export default User;

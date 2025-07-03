@@ -9,14 +9,13 @@ const connectDb = async () => {
     console.log("Using existing database connection.");
     return sequelizeInstance;
   }
-  console.log(process.env.DB_NAME);
   sequelizeInstance = new Sequelize(
     process.env.DB_NAME || "inventory_db",
     process.env.DB_USER || "postgres",
-    process.env.DB_PASSWORD || "nithin1001", // Use your actual password here
+    process.env.DB_PASSWORD || "171816", 
     
     {
-      host: 'localhost', // Use your actual host here
+      host: 'localhost', 
       dialect: "postgres",
       logging: false,
     }
