@@ -125,6 +125,7 @@ const getUser = async (req, res) => {
           email: user.email,
           role: user.role,
           group_code: wholesaler.group_code,
+          address:user.address
         },
       });
     }

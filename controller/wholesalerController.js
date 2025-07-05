@@ -3,6 +3,7 @@ import Product from "../models/productModel.js";
 import User from "../models/userModel.js";
 
 import WholesalerRetailerMap from "../models/wholesalerRetailerMap.js";
+import { notifyRetailer } from "../socket/socketController.js";
 const getProducts = async(req,res)=>{
     const {id} = req.params;
     // console.log(req.user);
@@ -43,7 +44,11 @@ const editRetailer = async (req, res) => {
         if (!user) return res.status(404).json({ message: "User not found" });
         user.name = name;
         user.phone = phone;
-        user.address = address;
+        user.address = {
+            ...user.address,
+            ...address
+        };
+        
         // user.location = location;
         await user.save();
         return res.json({
@@ -88,6 +93,16 @@ const updateOrderStatus = async(req,res)=>{
     if(!order) return res.status(404).json({message:"Order not found"});
     order.status = status;
     await order.save();
+    
+    const map = await WholesalerRetailerMap.findOne({where:{wholesaler_id:order.wholesaler_id}});
+    const retailerList = map.retailers;
+    const retailer = await retailerList.find(retailer=>retailer.user_id === order.user_id);
+    if(!retailer) return res.status(404).json({message:"Retailer not found"});
+    retailer.total_orders = retailer.total_orders + 1;
+    notifyRetailer("order-complete",order.user_id,order);
+    // retailer.amount_paid = retailer.amount_paid + order.amount_paid;
+    retailer.total_amount += Number(order.amount_paid);
+    await retailer.save();
     return res.json(order);
 }
 export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus}
