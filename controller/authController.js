@@ -1,7 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
-
+import wholeSalerModel from "../models/wholesalerModel.js";
+import WholesalerRetailerMapModel from "../models/wholesalerRetailerMap.js";
+import RetailerInvitation from "../models/retailerInvitationModel.js";
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -17,6 +19,25 @@ const login = async (req, res) => {
       { userId: user.user_id, email: user.email, role: user.role },
       process.env.JWT_SECRET
     );
+    if (user.role === "wholesaler") {
+      const wholesaler = await wholeSalerModel.findOne({
+        where: { user_id: String(user.user_id) },
+      });
+      if (wholesaler.isdeactivated) {
+        return res.status(401).json({ message: "Wholesaler is deactivated" });
+      }
+      return res.json({
+        message: "Login successful",
+        token,
+
+        user: {
+          userId: user.user_id,
+          email: user.email,
+          role: user.role,
+          group_code: wholesaler.group_code,
+        },
+      });
+    }
     return res.json({
       message: "Login successful",
       token,
@@ -24,6 +45,7 @@ const login = async (req, res) => {
         userId: user.user_id,
         email: user.email,
         role: user.role,
+        address: user.address,
       },
     });
   } catch (error) {
@@ -34,8 +56,15 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, phone, address, role } = req.body;
-
+    const {
+      name,
+      email,
+      password,
+      phone,
+      address={},
+      role="retailer",
+    } = req.body;
+    // console.log(req.body);
     if (!name || !email || !password || !phone || !role) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -53,11 +82,63 @@ const register = async (req, res) => {
       address,
       role,
     });
+    if (role === "wholesaler") {
+      const group_code = String(Math.floor(1000000 + Math.random() * 9000000));
+      const wholesalerCode = await wholeSalerModel.create({
+        user_id: user.user_id,
+        group_code,
+      });
+      const wholesalerMapping = await WholesalerRetailerMapModel.create({
+        group_code,
+        wholesaler_id: user.user_id,
+      });
+    }
+    if (role === "retailer") {
+      const retailerInvitations = await RetailerInvitation.create({
+        user_id: user.user_id,
+      });
+    }
     return res.json({ message: "User created successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const getUser = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+    const decoded = jwt.decode(token);
+    const user = await User.findByPk(decoded.userId);
+    if (decoded.role === "wholesaler") {
+      const wholesaler = await wholeSalerModel.findOne({
+        where: { user_id: String(user.user_id) },
+      });
+      if (wholesaler.isdeactivated) {
+        return res.status(401).json({ message: "Wholesaler is deactivated" });
+      }
+      return res.json({
+        message: "Login successful",
+        token,
 
-export default { login, register };
+        user: {
+          userId: user.user_id,
+          email: user.email,
+          role: user.role,
+          group_code: wholesaler.group_code,
+        },
+      });
+    }
+    return res.json({
+      user: {
+        userId: user.user_id,
+        email: user.email,
+        role: user.role,
+        address:user.address
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+export default { login, register, getUser };

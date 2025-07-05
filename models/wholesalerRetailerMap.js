@@ -1,21 +1,22 @@
+import { DataTypes } from "sequelize";
+import { sequelize } from "../config/connectDB.js";
+
 const WholesalerRetailerMap = sequelize.define('WholesalerRetailerMap', {
-  mapping: {
-    type: DataTypes.JSONB,
+  wholesaler_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      isValidMap(value) {
-        if (typeof value !== 'object' || value === null) {
-          throw new Error("Mapping must be a JSON object");
-        }
-        for (const [key, val] of Object.entries(value)) {
-          if (!Array.isArray(val) || val.some(id => typeof id !== 'string')) {
-            throw new Error("Each key must map to an array of retailer IDs (strings)");
-          }
-        }
-      }
-    }
+  },
+  group_code :{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  retailers: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: false,
+    defaultValue: [],
   }
 }, {
   tableName: 'wholesaler_retailer_map',
   timestamps: true,
 });
+export default WholesalerRetailerMap

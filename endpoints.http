@@ -7,14 +7,18 @@ Content-Type: application/json
     "email":"rushi@gmail.com",
     "password":"1234"
 }
+
+###test
+GET http://localhost:8000
+
 ###
 #register
 POST http://localhost:8000/api/auth/register
 Content-Type: application/json
 
 {
-    "name":"rushi",
-    "email":"rushi@gmail.com",
+    "name":"wholesaler",
+    "email":"wholesaler@gmail.com",
     "password":"1234",
     "phone":"1234567890",
     "address":{
@@ -32,24 +36,24 @@ Content-Type: application/json
 #add new product
 POST http://localhost:8000/api/product/new
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE0NjE4ODl9.HyIce2ryQSglI0r0MVxl82j35ZZ3EvPq4p-a-7s3Ug0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE1Mjc2MjV9.Kz2tYmLM0tN-y4bAEp-JRdfmkxR0fQyLY8WdbhdZqFM
 
 {
     "name":"product",
     "description":"description",
    "mrp":150,
-   "price":120,
-   "wholesaler_id":1
+   "price":120
 }
 
 ####get product by id
 GET http://localhost:8000/api/product/getById/1
 ###update product
-PUT http://localhost:8000/api/product/update/1
+PUT http://localhost:8000/api/product/update/3
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE1MjcwODh9.9Q1yLYhnS6J36EEoTRhZptCzVYj3xar87EnNl8vH6fw
 
 {
-    "name":"product",
+    "name":"product1",
     "description":"description",
    "mrp":150,
    "price":120,
@@ -64,6 +68,57 @@ DELETE http://localhost:8000/api/product/delete/1
 ### 👴wholesaler routes
 #get products
 GET http://localhost:8000/api/wholesaler/get-products
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE0NjE4ODl9.HyIce2ryQSglI0r0MVxl82j35ZZ3EvPq4p-a-7s3Ug0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE1Mjc2MjV9.Kz2tYmLM0tN-y4bAEp-JRdfmkxR0fQyLY8WdbhdZqFM
+
+###get retailers
+GET http://localhost:8000/api/wholesaler/get-retailers
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoicnVzaGlAZ21haWwuY29tIiwicm9sZSI6Indob2xlc2FsZXIiLCJpYXQiOjE3NTE1Mjc2MjV9.Kz2tYmLM0tN-y4bAEp-JRdfmkxR0fQyLY8WdbhdZqFM
+
+
+
+
+### ⚜️merchant routes
+#signup
+POST http://localhost:8000/api/auth/register
+Content-Type: application/json
+
+{
+    "name":"retailer",
+    "email":"retailer@gmail.com",
+    "password":"1234",
+    "phone":"1234567890",
+    "address":{
+        "street":"street",
+        "city":"city",
+        "state":"state",
+        "zip":"zip"
+    },
+    "role":"retailer"
+}
+
+###login 
+POST http://localhost:8000/api/auth/login
+Content-Type: application/json
+
+{
+    "email":"retailer@gmail.com",
+    "password":"1234"
+}
+
+###get wholesalers
+GET http://localhost:8000/api/retailer/get-wholesalers
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoicmV0YWlsZXJAZ21haWwuY29tIiwicm9sZSI6InJldGFpbGVyIiwiaWF0IjoxNzUxNTQwMzQ0fQ.XlUQt4xKT4EA4j8auKRYqea3SvVeGhLD4hxsUW6JDi0
+
+
+###place order
+POST http://localhost:8000/api/retailer/place-order
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoicmV0YWlsZXJAZ21haWwuY29tIiwicm9sZSI6InJldGFpbGVyIiwiaWF0IjoxNzUxNjEyNzgwfQ.IMpi693DRhtwbLtnc2uOJx9-ajszbAZfpcp4IcqPEUQ
+
+{
+    "Producct":1
+}
+
 
 ###
+GET http://localhost:8000/api/retailer/place-order

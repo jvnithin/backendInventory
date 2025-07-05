@@ -3,14 +3,19 @@ import { sequelize } from '../config/connectDB.js';
 
 const Order = sequelize.define('Order', {
   order_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     primaryKey: true,
-    allowNull: false,
+    autoIncrement:true
   },
   user_id: {
     type: DataTypes.STRING,
     allowNull: false,
     comment: 'Retailer or wholesaler user ID',
+  },
+  wholesaler_id:{
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'null'
   },
   created_at: {
     type: DataTypes.DATE,

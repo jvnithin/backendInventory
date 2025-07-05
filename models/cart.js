@@ -3,14 +3,15 @@ import { sequelize } from '../config/connectDB.js';
 
 const Cart = sequelize.define('Cart', {
   cart_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     primaryKey: true,
+    autoIncrement:true,
     allowNull: false,
   },
   user_id: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    
     comment: 'Retailer user ID (one cart per retailer)',
   },
   cart_items: {
