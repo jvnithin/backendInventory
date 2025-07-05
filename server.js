@@ -39,7 +39,7 @@ const io = new SocketIOServer(server, {
 
 // Socket.IO connection handler
 io.on('connection', socketController);
-
+export default io;
 // Sync DB and start server
 sequelize.sync({ alter: true })
   .then(() => {

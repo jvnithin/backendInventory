@@ -106,6 +106,10 @@ const getCart = async (req, res) => {
     const { userId } = req.user;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
     const result = await Cart.findOne({ where: { user_id: String(userId) } });
+    if(!result){
+      const cart = await Cart.create({user_id:userId,cart_items:[]});
+      return cart.cart_items;
+    }
     return res.json(result.cart_items);
   } catch (error) {
     console.error(error);
