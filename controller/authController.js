@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
-import wholeSalerModel from "../models/wholesalerModel.js";
+import wholeSalerModel from "../models/wholeSalerModel.js";
 import WholesalerRetailerMapModel from "../models/wholesalerRetailerMap.js";
 import RetailerInvitation from "../models/retailerInvitationModel.js";
 
