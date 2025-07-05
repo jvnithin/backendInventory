@@ -15,5 +15,4 @@ const WholesalerCode = sequelize.define('WholesalerCode', {
   tableName: 'wholesaler_code',
   timestamps: true,
 });
-
 export default WholesalerCode;
