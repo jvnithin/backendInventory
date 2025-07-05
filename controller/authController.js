@@ -4,6 +4,7 @@ import User from "../models/userModel.js";
 import wholeSalerModel from "../models/wholesalerModel.js";
 import WholesalerRetailerMapModel from "../models/wholesalerRetailerMap.js";
 import RetailerInvitation from "../models/retailerInvitationModel.js";
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
