@@ -33,7 +33,7 @@ const socketController = (socket) => {
 export const notifyWholesaler = async(event,wholesalerId,data) => {
   console.log("Emitting event for wholesaler:", wholesalerId);
   console.log(wholesalerMap)
-  const wholesalerSocket = wholesalerMap.find(wholesaler => wholesaler.userId === wholesalerId);
+  const wholesalerSocket = wholesalerMap.find(wholesaler => String(wholesaler.userId) === String(wholesalerId));
   console.log(wholesalerSocket);
   if (wholesalerSocket) {
     console.log("Wholesaler found");
@@ -43,7 +43,7 @@ export const notifyWholesaler = async(event,wholesalerId,data) => {
 
 export const notifyRetailer = async(event,retailerId,data) => {
   console.log("Emitting event for retailer:", retailerId);
-  const retailerSocket = retailerMap.find(wholesaler => wholesaler.userId === retailerId);
+  const retailerSocket = retailerMap.find(retailer => String(retailer.userId) === String(retailerId));
   if (retailerSocket) {
     console.log("Retailer found");
     io.to(retailerSocket.socketId).emit(event, retailerId, data);
