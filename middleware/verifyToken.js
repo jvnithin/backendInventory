@@ -2,11 +2,11 @@ import jwt from "jsonwebtoken"
 
 const verifyToken = (roles) => {
   return (req, res, next) => {
-    console.log("In the middleware");
+    // console.log("In the middleware");
     const token = req.headers.authorization?.split(" ")[1];
     // console.log(token);
     if (!token) {
-      console.log(token)
+      // console.log(token)
       return res.status(401).json({ message: "Token not found" });
     }
     try {

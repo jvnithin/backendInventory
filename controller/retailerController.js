@@ -102,7 +102,6 @@ const addToCart = async (req, res) => {
 
 const getCart = async (req, res) => {
   try {
-    console.log("Got request to get cart");
     const { userId } = req.user;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
     const result = await Cart.findOne({ where: { user_id: String(userId) } });
@@ -129,13 +128,11 @@ const getOrders = async (req, res) => {
 };
 
 const deleteFromCart = async (req, res) => {
-  console.log("Deleting from cart");
   const {id} = req.params;
   const {userId} = req.user;
   if(!userId) return res.status(401).json({ message: "Unauthorized" });
   let cart = await Cart.findOne({where:{user_id:String(userId)}});
   if(!cart) return res.status(404).json({ message: "Cart not found" });
-  console.log(id);
   cart.cart_items = cart.cart_items.filter(item => String(item.product_id) !== String(id));
   cart.changed("cart_items",true);
   await cart.save();
@@ -212,7 +209,7 @@ const editRetailer = async(req,res)=>{
   console.log("Got request to edit retailer",req.body);
   const { userId } = req.user;
   const id = userId;
-  console.log(req.user);
+  // console.log(req.user);
   if (!id) return res.status(401).json({ message: "User id not found" });  
   const user = await User.findOne({ where: { user_id: Number(id) } });
   if (!user) return res.status(404).json({ message: "User not found" });

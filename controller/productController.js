@@ -75,7 +75,7 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
     if (parseInt(userId) !== parseInt(product.wholesaler_id)){
-      console.log(userId, product.wholesaler_id);
+      // console.log(userId, product.wholesaler_id);
       return res
         .status(401)
         .json({ message: "You don't have access to edit this product" });
@@ -108,7 +108,7 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
     if (parseInt(userId) !== parseInt(product.wholesaler_id)){
-      console.log(userId, product.wholesaler_id);
+      // console.log(userId, product.wholesaler_id);
       return res
         .status(401)
         .json({ message: "You don't have access to delete this product" });
