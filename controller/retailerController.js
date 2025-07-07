@@ -14,7 +14,7 @@ const getWholesalers = async (req, res) => {
       where: { user_id: String(userId) },
     });
     const invitations = invitationsMap.invitations;
-    console.log(invitations);
+    // console.log(invitations);
 
     const wholesalers = await Promise.all(
       invitations.map(async (wholesalerId) => {
@@ -29,7 +29,9 @@ const getWholesalers = async (req, res) => {
         return wholesaler;
       })
     );
-    console.log(wholesalers);
+    // console.log(who
+    // 
+    // lesalers);
     return res.json(wholesalers);
   } catch (error) {
     console.error(error);
@@ -63,7 +65,7 @@ const placeOrder = async (req, res) => {
     if (retailerCart) {
       console.log("Emptying cart");
       retailerCart.cart_items = []; // Set to empty array
-      console.log(retailerCart.cart_items);
+      // console.log(retailerCart.cart_items);
       retailerCart.changed("cart_items", true);
       await retailerCart.save();    // Save changes
     }
@@ -206,27 +208,31 @@ const subscribeWholesaler = async (req, res) => {
 };
 
 const editRetailer = async(req,res)=>{
-  console.log("Got request to edit retailer",req.body);
-  const { userId } = req.user;
-  const id = userId;
-  // console.log(req.user);
-  if (!id) return res.status(401).json({ message: "User id not found" });  
-  const user = await User.findOne({ where: { user_id: Number(id) } });
-  if (!user) return res.status(404).json({ message: "User not found" });
-  for(const [key,value] of Object.entries(req.body)){
-    if(value) user[key] = value;
-  }
-  await user.save();
-  return res.json({
+  try {
+    console.log("Got request to edit retailer", req.body);
+    const { userId } = req.user;
+    const id = userId;
+    if (!id) return res.status(401).json({ message: "User id not found" });
+    const user = await User.findOne({ where: { user_id: Number(id) } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    for (const [key, value] of Object.entries(req.body)) {
+      if (value) user[key] = value;
+    }
+    await user.save();
+    return res.json({
       message: "User updated successfully",
       user: {
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          userId: user.user_id,
-          address: user.address
-      }
-  });
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        userId: user.user_id,
+        address: user.address,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 const cancelOrder = async(req,res)=>{

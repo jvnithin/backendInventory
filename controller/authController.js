@@ -32,6 +32,7 @@ const login = async (req, res) => {
         token,
 
         user: {
+          name: user.name,
           userId: user.user_id,
           email: user.email,
           role: user.role,
@@ -43,6 +44,7 @@ const login = async (req, res) => {
       message: "Login successful",
       token,
       user: {
+        name: user.name,
         userId: user.user_id,
         email: user.email,
         role: user.role,
@@ -122,6 +124,7 @@ const getUser = async (req, res) => {
         token,
 
         user: {
+          name:user.name,
           userId: user.user_id,
           email: user.email,
           role: user.role,
@@ -132,6 +135,7 @@ const getUser = async (req, res) => {
     }
     return res.json({
       user: {
+        name: user.name,
         userId: user.user_id,
         email: user.email,
         role: user.role,

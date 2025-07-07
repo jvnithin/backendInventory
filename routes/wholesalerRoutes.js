@@ -8,4 +8,5 @@ router.get("/get-retailers",verifyToken(["wholesaler"]),wholesalerController.get
 router.put("/edit-retailer/:id",verifyToken(["wholesaler"]),wholesalerController.editRetailer);
 router.get('/get-orders',verifyToken(["wholesaler"]), wholesalerController.getOrders);
 router.put('/update-order-status/:id',verifyToken(["wholesaler"]), wholesalerController.updateOrderStatus);
+router.put("/edit-wholesaler/",verifyToken(["wholesaler"]), wholesalerController.editWholesaler);
 export default router;

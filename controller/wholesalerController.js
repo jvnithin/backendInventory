@@ -19,23 +19,43 @@ const getProducts = async(req,res)=>{
         return res.status(500).json({ message: "Internal Server Error" });
     }
 }
-const getRetailers = async(req,res)=>{
-    const userId = req.user.userId;
-    if(!userId) return res.status(401).json({ message: "Unauthorized" });
-    try {
-        const map = await WholesalerRetailerMap.findOne({where:{wholesaler_id:userId}});
-        const retailerIds = map.retailers;
-        const retailers = await Promise.all(
-            retailerIds.map(id => User.findOne({where:{user_id:Number(id)},attributes:["email","name","phone","user_id","address"]})));
-        return res.json(retailers);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-}
+const getRetailers = async (req, res) => {
+  const userId = req.user?.userId;
+  console.log("Wholesaler userId:", userId);
+
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const map = await WholesalerRetailerMap.findOne({
+      where: { wholesaler_id: Number(userId) },
+    });
+
+    if (!map) return res.status(404).json({ message: "Wholesaler map not found" });
+
+    const retailersData = map.retailers.map((retailer) => JSON.parse(retailer));
+    const validRetailers = retailersData.filter((retailer) => Number.isFinite(Number(retailer.user_id)));
+
+    const retailers = await Promise.all(
+      validRetailers.map(async (retailer) => {
+        const retailerData = await User.findOne({
+          where: { user_id: Number(retailer.user_id) },
+          attributes: ["email", "name", "phone", "user_id", "address"],
+        });
+        return {
+          ...retailerData.dataValues,
+          ...retailer,
+        };
+      })
+    );
+    return res.json(retailers.filter(Boolean));
+  } catch (error) {
+    console.error("Error in getRetailers:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 
 const editRetailer = async (req, res) => {
-    console.log("Got request to edit retailer");
     const { name, phone, address } = req.body;
     const { id } = req.params;
     if (!id) return res.status(401).json({ message: "User id not found" });
@@ -89,20 +109,59 @@ const updateOrderStatus = async(req,res)=>{
     const {userId} = req.user;
     const {status} = req.body;
     const orderId = req.params.id;
-    const order = await Order.findOne({where:{order_id:Number(orderId)}});
-    if(!order) return res.status(404).json({message:"Order not found"});
-    order.status = status;
-    await order.save();
-    
-    const map = await WholesalerRetailerMap.findOne({where:{wholesaler_id:order.wholesaler_id}});
-    const retailerList = map.retailers;
-    const retailer = await retailerList.find(retailer=>retailer.user_id === order.user_id);
-    if(!retailer) return res.status(404).json({message:"Retailer not found"});
-    retailer.total_orders = retailer.total_orders + 1;
-    notifyRetailer("order-complete",order.user_id,order);
-    // retailer.amount_paid = retailer.amount_paid + order.amount_paid;
-    retailer.total_amount += Number(order.amount_paid);
-    await retailer.save();
-    return res.json(order);
+    try {
+        const order = await Order.findOne({ where: { order_id: Number(orderId) } });
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
+        const map = await WholesalerRetailerMap.findOne({ where: { wholesaler_id: order.wholesaler_id } });
+        const retailerListRef = map.retailers;
+        
+        let retailerList = retailerListRef.map((retailer) => JSON.parse(retailer));
+        let retailerIndex = retailerList.findIndex(retailer => String(retailer.user_id) === String(order.user_id));
+        if (retailerIndex === -1) return res.status(404).json({ message: "Retailer not found" });
+
+        retailerList[retailerIndex].total_orders += 1;
+        order.status = status;
+        await order.save();
+        notifyRetailer("order-complete", order.user_id, order);
+
+        retailerList[retailerIndex].total_amount += Number(order.amount_paid);
+
+        map.retailers = retailerList.map(retailer => JSON.stringify(retailer));
+        await map.save();
+        
+        return res.json(order);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
 }
-export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus}
+const editWholesaler = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const id = userId;
+    // console.log(req.user);
+    if (!id) return res.status(401).json({ message: "User id not found" });  
+    const user = await User.findOne({ where: { user_id: Number(id) } });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    for(const [key,value] of Object.entries(req.body)){
+      if(value) user[key] = value;
+    }
+    await user.save();
+    return res.json({
+        message: "User updated successfully",
+        user: {
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            userId: user.user_id,
+            address: user.address,
+            group_code: user.group_code
+        }
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus,editWholesaler};
