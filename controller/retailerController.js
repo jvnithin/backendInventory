@@ -78,7 +78,7 @@ const placeOrder = async (req, res) => {
 };
 
 const addToCart = async (req, res) => {
-  console.log("Adding to cart");
+  // console.log("Adding to cart");
   console.log(req.body);
   const {name,price,quantity,product_id,wholesaler_id,addedAt} = req.body;
   const {userId} = req.user;

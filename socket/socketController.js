@@ -1,63 +1,73 @@
 import io from "../server.js";
 
-const wholesalerMap = []; 
-const retailerMap = [];
+// Use Maps for efficient lookup and overwrite
+const wholesalerMap = new Map(); // userId -> socketId
+const retailerMap = new Map();   // userId -> socketId
+
 const socketController = (socket) => {
   console.log('A client connected:', socket.id);
+
   socket.on('wholesaler-connect', (data) => {
     console.log("Wholesaler connected:", data);
-    wholesalerMap.push({
-      userId: data.id,
-      socketId: socket.id
-    });
-  })
+    wholesalerMap.set(String(data.id), socket.id); // Always keep latest
+  });
+
   socket.on('retailer-connect', (data) => {
     console.log("Retailer connected:", data);
-    retailerMap.push({
-      userId: data.id,
-      socketId: socket.id
-    });
-  })
-  // Example: Listen for a custom event
+    retailerMap.set(String(data.id), socket.id); // Always keep latest
+  });
+
   socket.on('message', (data) => {
     console.log('Received message:', data);
-    // Broadcast to all clients
     io.emit('message', data);
   });
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
+    // Remove from wholesaler map if present
+    for (let [userId, sockId] of wholesalerMap.entries()) {
+      if (sockId === socket.id) {
+        wholesalerMap.delete(userId);
+        break;
+      }
+    }
+    // Remove from retailer map if present
+    for (let [userId, sockId] of retailerMap.entries()) {
+      if (sockId === socket.id) {
+        retailerMap.delete(userId);
+        break;
+      }
+    }
   });
-}
+};
 
-export const notifyWholesaler = async(event,wholesalerId,data) => {
+// Notify functions now use Map
+export const notifyWholesaler = async(event, wholesalerId, data) => {
   try {
-    console.log("Emitting event for wholesaler:", wholesalerId);
-    console.log(wholesalerMap)
-    const wholesalerSocket = wholesalerMap.find(wholesaler => String(wholesaler.userId) === String(wholesalerId));
-    console.log(wholesalerSocket);
-    if (wholesalerSocket) {
-      console.log("Wholesaler found");
-      io.to(wholesalerSocket.socketId).emit(event, data);
-      console.log("Emission completed for wholesaler:", wholesalerSocket.socketId);
+    const socketId = wholesalerMap.get(String(wholesalerId));
+    if (socketId) {
+      io.to(socketId).emit(event, data);
+      console.log(`Emitted event '${event}' to wholesaler ${wholesalerId} on socket ${socketId}`);
+    } else {
+      console.log(`No active socket for wholesaler ${wholesalerId}`);
     }
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export const notifyRetailer = async(event, retailerId, data) => {
   try {
-    console.log("Emitting event for retailer:", retailerId);
-    const retailerSocket = retailerMap.find(retailer => String(retailer.userId) === String(retailerId));
-    if (retailerSocket) {
-      console.log("Retailer found");
-      io.to(retailerSocket.socketId).emit(event, retailerId, data);
-      console.log("Emission completed for retailer:", retailerSocket);
+    const socketId = retailerMap.get(String(retailerId));
+    if (socketId) {
+      io.to(socketId).emit(event, data);
+      console.log(`Emitted event '${event}' to retailer ${retailerId} on socket ${socketId}`);
+    } else {
+      console.log(`No active socket for retailer ${retailerId}`);
     }
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export default socketController;
