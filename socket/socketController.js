@@ -32,16 +32,19 @@ const socketController = (socket) => {
 
 export const notifyWholesaler = async(event,wholesalerId,data) => {
   console.log("Emitting event for wholesaler:", wholesalerId);
-  const wholesalerSocket = wholesalerMap.find(wholesaler => wholesaler.userId === wholesalerId)?.socketId;
+  const wholesalerSocket = wholesalerMap.find(wholesaler => wholesaler.userId === wholesalerId);
+
   if (wholesalerSocket) {
+    console.log("Wholesaler found");
     io.to(wholesalerSocket.socketId).emit(event, data);
   }
 }
 
 export const notifyRetailer = async(event,retailerId,data) => {
   console.log("Emitting event for retailer:", retailerId);
-  const retailerSocket = retailerMap.find(wholesaler => wholesaler.userId === wholesalerId).socketId;
+  const retailerSocket = retailerMap.find(wholesaler => wholesaler.userId === retailerId);
   if (retailerSocket) {
+    console.log("Retailer found");
     io.to(retailerSocket.socketId).emit(event, retailerId, data);
   }
 }
