@@ -3,9 +3,10 @@ import { sequelize } from '../config/connectDB.js';
 
 const Subscription = sequelize.define('Subscription', {
   subscription_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
+    autoIncrement:true
   },
   user_id: {
     type: DataTypes.STRING,
@@ -15,15 +16,22 @@ const Subscription = sequelize.define('Subscription', {
   start_date: {
     type: DataTypes.DATE,
     allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
   end_date: {
     type: DataTypes.DATE,
     allowNull: false,
+    defaultValue: () => {
+      const now = new Date();
+      now.setDate(now.getDate() + 7);
+      return now;
+    }
   },
   payment_id: {
     type: DataTypes.STRING,
-    allowNull: false,
+    // allowNull: false,
     comment: 'Foreign key to payments table (optional enforcement)',
+    default:"initial"
   },
   active: {
     type: DataTypes.BOOLEAN,

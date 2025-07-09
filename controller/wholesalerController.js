@@ -1,7 +1,8 @@
 import Order from "../models/orders.js";
 import Product from "../models/productModel.js";
+import Subscription from "../models/subscription.js";
 import User from "../models/userModel.js";
-
+import Payment from "../models/payment.js";
 import WholesalerRetailerMap from "../models/wholesalerRetailerMap.js";
 import { notifyRetailer } from "../socket/socketController.js";
 const getProducts = async(req,res)=>{
@@ -125,9 +126,9 @@ const updateOrderStatus = async(req,res)=>{
         await order.save();
         notifyRetailer("order-complete", order.user_id, order);
 
-        retailerList[retailerIndex].total_amount += Number(order.amount_paid);
+        // retailerList[retailerIndex].total_amount += Number(order.amount_paid);
 
-        map.retailers = retailerList.map(retailer => JSON.stringify(retailer));
+        // map.retailers = retailerList.map(retailer => JSON.stringify(retailer));
         await map.save();
         
         return res.json(order);
@@ -164,4 +165,61 @@ const editWholesaler = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 }
-export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus,editWholesaler};
+
+const paymentUpdate = async(req,res)=>{
+
+  const {userId} = req.user;
+  const {retailerId,amount,wholesaler_id} = req.body;
+  console.log(retailerId,amount);
+  try {
+    const retailer = await User.findOne({where:{user_id:Number(retailerId)},attributes:["email","name","phone","user_id","address"]});
+    const payment = await Payment.create({user_id:retailerId,amount:Number(amount),role:"retailer",status:"successful",wholesaler_id});
+    const wholesalerMap = await WholesalerRetailerMap.findOne({where:{wholesaler_id:Number(userId)}});
+    console.log(wholesalerMap.retailers);
+    wholesalerMap.retailers = wholesalerMap.retailers.map((retailerStr)=>{
+      const retailer = JSON.parse(retailerStr);
+      if(String(retailer.user_id) === String(retailerId)){
+        console.log("Updating amount");
+        retailer.amount_paid += Number(amount);
+      }
+      return JSON.stringify(retailer);
+    });
+    console.log(wholesalerMap.retailers);
+    wholesalerMap.changed("retailers",true);
+    await wholesalerMap.save();
+    return res.json(retailer);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+const addSubscription = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const subscription = await Subscription.findOne({ where: { user_id: String(userId) } });
+    if (!subscription) {
+      console.log("Creating subscription");
+      const subscription = await Subscription.create({ user_id: String(userId),start_date: new Date(), end_date: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000) });
+
+      return res.status(200).json({ message: "Subscription added successfully",subscription });
+    }
+    subscription.end_date = new Date(subscription.end_date.getTime() + 30 * 24 * 60 * 60 * 1000);
+    await subscription.save();
+    return res.json({message:"Subscription updated successfully",subscription});
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+const getPayments = async(req,res)=>{
+  const {userId} = req.user;
+  try {
+    const payments = await Payment.findAll({where:{wholesaler_id:String(userId)}});
+    return res.json(payments);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus,editWholesaler,addSubscription,paymentUpdate,getPayments};

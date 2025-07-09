@@ -3,9 +3,10 @@ import { sequelize } from '../config/connectDB.js';
 
 const Payment = sequelize.define('Payment', {
   payment_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     primaryKey: true,
     allowNull: false,
+    autoIncrement:true,
   },
   order_id: {
     type: DataTypes.STRING,
@@ -21,6 +22,14 @@ const Payment = sequelize.define('Payment', {
     type: DataTypes.STRING,
     allowNull: false,
     comment: 'ID of the user (wholesaler or retailer)',
+  },
+  wholesaler_id:{
+    type:DataTypes.STRING,
+    allowNull:true
+  },
+  amount:{
+    type:DataTypes.INTEGER,
+    allowNull:false
   },
   role: {
     type: DataTypes.STRING,

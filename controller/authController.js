@@ -4,7 +4,7 @@ import User from "../models/userModel.js";
 import wholeSalerModel from "../models/wholeSalerModel.js";
 import WholesalerRetailerMapModel from "../models/wholesalerRetailerMap.js";
 import RetailerInvitation from "../models/retailerInvitationModel.js";
-
+import Subscription from "../models/subscription.js";
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -24,14 +24,31 @@ const login = async (req, res) => {
       const wholesaler = await wholeSalerModel.findOne({
         where: { user_id: String(user.user_id) },
       });
+      if (!wholesaler) {
+        return res.status(404).json({ error: "Wholesaler not found" });
+      }
       if (wholesaler.isdeactivated) {
         return res.status(401).json({ message: "Wholesaler is deactivated" });
+      }
+      const subscription = await Subscription.findOne({
+        where: { user_id: String(user.user_id) },
+      });
+      if (!subscription) {
+        console.log("subscription not found")
+        return res.status(404).json({ error: "Subscription not found" });
+      }
+      let subscriptionExpired = false;
+      if(!subscription) subscriptionExpired = true;
+      if(subscription && subscription.end_date < new Date()) subscriptionExpired = true;
+      if (subscription && subscription.end_date < new Date()) {
+        subscriptionExpired = true;
       }
       return res.json({
         message: "Login successful",
         token,
-
         user: {
+          subscription_expiry: subscription?.end_date,
+          subscriptionExpired,
           name: user.name,
           userId: user.user_id,
           email: user.email,
@@ -95,6 +112,9 @@ const register = async (req, res) => {
         group_code,
         wholesaler_id: user.user_id,
       });
+      console.log("Creating 7 day subscription");
+      const subscription = await Subscription.create({ user_id: String(user.user_id), start_date: new Date(), end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
+      console.log(subscription);
     }
     if (role === "retailer") {
       const retailerInvitations = await RetailerInvitation.create({
@@ -110,6 +130,9 @@ const register = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Token not found" });
+    }
     const decoded = jwt.decode(token);
     const user = await User.findByPk(decoded.userId);
     if (decoded.role === "wholesaler") {
@@ -119,11 +142,19 @@ const getUser = async (req, res) => {
       if (wholesaler.isdeactivated) {
         return res.status(401).json({ message: "Wholesaler is deactivated" });
       }
+      const subscription = await Subscription.findOne({
+        where: { user_id: String(decoded.userId) },
+      })
+      console.log(subscription);
+      let subscriptionExpired = false;
+      if(!subscription) subscriptionExpired = true;
+      if(subscription?.end_date < new Date()) subscriptionExpired = true;
       return res.json({
         message: "Login successful",
         token,
-
         user: {
+          subscription_expiry: subscription?.end_date,
+          subscriptionExpired,
           name:user.name,
           userId: user.user_id,
           email: user.email,
@@ -147,4 +178,5 @@ const getUser = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 export default { login, register, getUser };

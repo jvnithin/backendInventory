@@ -12,4 +12,5 @@ router.post("/subscribe-wholesaler",verifyToken(["retailer"]), retailerControlle
 router.delete('/delete-from-cart/:id',verifyToken(["retailer"]), retailerController.deleteFromCart);
 router.put("/edit-retailer/",verifyToken(["retailer"]), retailerController.editRetailer);
 router.put("/cancel-order/:id",verifyToken(["retailer"]), retailerController.cancelOrder);
+router.get('/get-transactions',verifyToken(["retailer"]), retailerController.getPayments);
 export default router;

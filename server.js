@@ -10,6 +10,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import http from 'http';                // <-- Import http
 import { Server as SocketIOServer } from 'socket.io'; // <-- Import Socket.IO
 import socketController from './socket/socketController.js';
+import Subscription from './models/subscription.js';
 
 dotenv.config();
 const app = express();
@@ -40,6 +41,10 @@ const io = new SocketIOServer(server, {
 // Socket.IO connection handler
 io.on('connection', socketController);
 export default io;
+(async () => {
+  await Subscription.sync({ force: true });
+  console.log('Subscription table synced');
+})();
 // Sync DB and start server
 sequelize.sync({ alter: true })
   .then(() => {
