@@ -116,9 +116,20 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImVtYWlsIjoicmV0YWlsZXJAZ21haWwuY29tIiwicm9sZSI6InJldGFpbGVyIiwiaWF0IjoxNzUxNjEyNzgwfQ.IMpi693DRhtwbLtnc2uOJx9-ajszbAZfpcp4IcqPEUQ
 
 {
-    "Producct":1
+    "Product":1
 }
 
 
 ###
 GET http://localhost:8000/api/retailer/place-order
+
+
+
+###
+POST http://localhost:8000/api/payment/get-payment-details
+Content-Type: application/json
+
+{
+    "razorpay_payment_id":"pay_QrKC3uq0jPkGra"
+   
+}

@@ -8,6 +8,11 @@ const Payment = sequelize.define('Payment', {
     allowNull: false,
     autoIncrement:true,
   },
+  razorpay_payment_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    comment: 'Razorpay payment ID',
+  },
   order_id: {
     type: DataTypes.STRING,
     allowNull: true,

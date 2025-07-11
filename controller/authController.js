@@ -33,11 +33,8 @@ const login = async (req, res) => {
       const subscription = await Subscription.findOne({
         where: { user_id: String(user.user_id) },
       });
-      if (!subscription) {
-        console.log("subscription not found")
-        return res.status(404).json({ error: "Subscription not found" });
-      }
       let subscriptionExpired = false;
+    
       if(!subscription) subscriptionExpired = true;
       if(subscription && subscription.end_date < new Date()) subscriptionExpired = true;
       if (subscription && subscription.end_date < new Date()) {
@@ -135,6 +132,7 @@ const getUser = async (req, res) => {
     }
     const decoded = jwt.decode(token);
     const user = await User.findByPk(decoded.userId);
+    if(!user) return res.status(404).json({ message: "User not found" });
     if (decoded.role === "wholesaler") {
       const wholesaler = await wholeSalerModel.findOne({
         where: { user_id: String(user.user_id) },

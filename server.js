@@ -7,11 +7,11 @@ import wholesalerRoutes from "./routes/wholesalerRoutes.js";
 import retailerRoutes from "./routes/retailerRoutes.js";
 import cors from 'cors';
 import adminRoutes from "./routes/adminRoutes.js";
-import http from 'http';                // <-- Import http
-import { Server as SocketIOServer } from 'socket.io'; // <-- Import Socket.IO
+import http from 'http';                
+import { Server as SocketIOServer } from 'socket.io'; 
 import socketController from './socket/socketController.js';
 import Subscription from './models/subscription.js';
-
+import paymentRoutes from "./routes/paymentRoutes.js";
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -28,7 +28,7 @@ app.use("/api/product", productRoutes);
 app.use("/api/wholesaler", wholesalerRoutes);
 app.use("/api/retailer", retailerRoutes);
 app.use("/api/admin", adminRoutes);
-
+app.use("/api/payment",paymentRoutes)
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
@@ -41,10 +41,10 @@ const io = new SocketIOServer(server, {
 // Socket.IO connection handler
 io.on('connection', socketController);
 export default io;
-(async () => {
-  await Subscription.sync({ force: true });
-  console.log('Subscription table synced');
-})();
+// (async () => {
+//   await Subscription.sync({ force: true });
+//   console.log('Subscription table synced');
+// })();
 // Sync DB and start server
 sequelize.sync({ alter: true })
   .then(() => {

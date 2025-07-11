@@ -193,24 +193,24 @@ const paymentUpdate = async(req,res)=>{
     return res.status(500).json({ message: "Internal Server Error" });
   }
 }
-const addSubscription = async (req, res) => {
-  try {
-    const { userId } = req.user;
-    const subscription = await Subscription.findOne({ where: { user_id: String(userId) } });
-    if (!subscription) {
-      console.log("Creating subscription");
-      const subscription = await Subscription.create({ user_id: String(userId),start_date: new Date(), end_date: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000) });
+// const addSubscription = async (req, res) => {
+//   try {
+//     const { userId } = req.user;
+//     const subscription = await Subscription.findOne({ where: { user_id: String(userId) } });
+//     if (!subscription) {
+//       console.log("Creating subscription");
+//       const subscription = await Subscription.create({ user_id: String(userId),start_date: new Date(), end_date: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000) });
 
-      return res.status(200).json({ message: "Subscription added successfully",subscription });
-    }
-    subscription.end_date = new Date(subscription.end_date.getTime() + 30 * 24 * 60 * 60 * 1000);
-    await subscription.save();
-    return res.json({message:"Subscription updated successfully",subscription});
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
-}
+//       return res.status(200).json({ message: "Subscription added successfully",subscription });
+//     }
+//     subscription.end_date = new Date(subscription.end_date.getTime() + 30 * 24 * 60 * 60 * 1000);
+//     await subscription.save();
+//     return res.json({message:"Subscription updated successfully",subscription});
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// }
 
 const getPayments = async(req,res)=>{
   const {userId} = req.user;
@@ -222,4 +222,4 @@ const getPayments = async(req,res)=>{
     return res.status(500).json({ message: "Internal Server Error" });
   }
 }
-export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus,editWholesaler,addSubscription,paymentUpdate,getPayments};
+export default {getProducts,getRetailers,editRetailer,getOrders,updateOrderStatus,editWholesaler,paymentUpdate,getPayments};

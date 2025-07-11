@@ -28,10 +28,10 @@ const Subscription = sequelize.define('Subscription', {
     }
   },
   payment_id: {
-    type: DataTypes.STRING,
-    // allowNull: false,
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    
     comment: 'Foreign key to payments table (optional enforcement)',
-    default:"initial"
+    default: [],
   },
   active: {
     type: DataTypes.BOOLEAN,
