@@ -41,10 +41,10 @@ const io = new SocketIOServer(server, {
 // Socket.IO connection handler
 io.on('connection', socketController);
 export default io;
-// (async () => {
-//   await Subscription.sync({ force: true });
-//   console.log('Subscription table synced');
-// })();
+(async () => {
+  await Subscription.sync({ force: true });
+  console.log('Subscription table synced');
+})();
 // Sync DB and start server
 sequelize.sync({ alter: true })
   .then(() => {
